@@ -34,10 +34,11 @@ This project consists of a Python backend and a Node.js frontend. To get the ful
 
 1. Open a terminal window in the project directory.
 2. Run the Python backend using:
-   ```bash
-   python main.py
-   ```
-   This will start the backend server, which handles the plant disease classification.
+
+```bash
+python main.py
+```
+This will start the backend server, which handles the plant disease classification.
 
 Starting the Frontend
 Open another terminal window in the project directory.

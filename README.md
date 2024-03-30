@@ -56,7 +56,8 @@ Start the frontend application with:
 npm run start
 ```
 This command launches the web interface, allowing users to interact with the Plant Disease Classifier through a web browser.
-Make sure both the backend and frontend are running; you should now be able to access the application through your web browser by visiting the address provided by the npm run start command, typically http://localhost:3000 or another port if specified.
+Make sure both the backend and frontend are running; you should now be able to access the application through your web browser by visiting the address provided by the `npm run start` command, typically `http://localhost:3000` or another port if specified.
 
-Acknowledgments 👏
+## Acknowledgments 👏
+
 This project was inspired by the [Potato Disease Classification](https://github.com/codebasics/potato-disease-classification/) project by Codebasics. A special thanks to them for providing a solid foundation and understanding of plant disease classification.

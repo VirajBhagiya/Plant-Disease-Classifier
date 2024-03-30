@@ -40,7 +40,8 @@ python main.py
 ```
 This will start the backend server, which handles the plant disease classification.
 
-Starting the Frontend
+### Starting the Frontend
+
 Open another terminal window in the project directory.
 Navigate to the frontend directory (if your project is structured this way; adjust the command according to your project's structure):
 ```bash

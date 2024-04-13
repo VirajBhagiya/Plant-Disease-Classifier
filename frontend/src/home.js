@@ -10,7 +10,7 @@ import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import { Paper, CardActionArea, CardMedia, Grid, TableContainer, Table, TableBody, TableHead, TableRow, TableCell, Button, CircularProgress } from "@material-ui/core";
 import cblogo from "./logo.png";
-import image from "./bg.png";
+import image from "./gg.png";
 import { DropzoneArea } from 'material-ui-dropzone';
 import { common } from '@material-ui/core/colors';
 import Clear from '@material-ui/icons/Clear';
@@ -32,6 +32,7 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
   },
   clearButton: {
+    backgroundColor: "#679436",
     width: "-webkit-fill-available",
     borderRadius: "15px",
     padding: "15px 22px",
@@ -83,39 +84,39 @@ const useStyles = makeStyles((theme) => ({
     display: 'none',
   },
   uploadIcon: {
-    background: 'white',
+    background: 'trasparent',
   },
   tableContainer: {
-    backgroundColor: 'transparent !important',
+    backgroundColor: 'silver !important',
     boxShadow: 'none !important',
   },
   table: {
-    backgroundColor: 'transparent !important',
+    backgroundColor: 'silver !important',
   },
   tableHead: {
-    backgroundColor: 'transparent !important',
+    backgroundColor: 'silver !important',
   },
   tableRow: {
-    backgroundColor: 'transparent !important',
+    backgroundColor: '#264027 !important',
   },
   tableCell: {
     fontSize: '22px',
-    backgroundColor: 'transparent !important',
-    borderColor: 'transparent !important',
-    color: '#000000a6 !important',
+    backgroundColor: '#264027',
+    borderColor: '#264027',
+    color: 'silver !important',
     fontWeight: 'bolder',
     padding: '1px 24px 1px 16px',
   },
   tableCell1: {
     fontSize: '14px',
-    backgroundColor: 'transparent !important',
-    borderColor: 'transparent !important',
-    color: '#000000a6 !important',
+    backgroundColor: '#264027',
+    borderColor: '#264027',
+    color: 'silver !important',
     fontWeight: 'bolder',
     padding: '1px 24px 1px 16px',
   },
   tableBody: {
-    backgroundColor: 'transparent !important',
+    backgroundColor: '#264027 !important',
   },
   text: {
     color: 'white !important',
@@ -126,11 +127,18 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
   },
   detail: {
-    backgroundColor: 'white',
+    backgroundColor: '#264027',
     display: 'flex',
     justifyContent: 'center',
     flexDirection: 'column',
     alignItems: 'center',
+  },
+  detailCard: {
+    margin: theme.spacing(2),
+    backgroundColor: '#764134',
+    padding: theme.spacing(2),
+    fontWeight: 'bolder',
+    borderRadius: '15px',
   },
   appbar: {
     background: '#2c2c2d',
@@ -142,6 +150,24 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+const diseaseActions = {
+  "Late Blight": [
+    "Remove infected leaves and destroy them.",
+    "Avoid overhead watering to keep foliage dry.",
+    "Apply fungicides to protect plants during wet weather."
+  ],
+  "Early Blight": [
+    "Improve air circulation around plants.",
+    "Mulch around the base to prevent spore splash.",
+    "Use fungicide sprays as a preventative measure before symptoms appear."
+  ],
+  "Healthy": [
+    "Continue regular monitoring for any signs of disease.",
+    "Maintain soil health with proper fertilization and pH management.",
+    "Ensure adequate spacing and air circulation to prevent fungal growth."
+  ]
+};
+
 export const ImageUpload = () => {
   const classes = useStyles();
   const [selectedFile, setSelectedFile] = useState();
@@ -151,8 +177,11 @@ export const ImageUpload = () => {
   const [isLoading, setIsloading] = useState(false);
   let confidence = 0;
 
+  const [actions, setActions] = useState([]); // State to store recommended actions
+
   const sendFile = useCallback(async () => {
-    if (image) {
+    if (selectedFile) {
+      setIsloading(true);
       let formData = new FormData();
       formData.append("file", selectedFile);
       let res = await axios({
@@ -161,14 +190,20 @@ export const ImageUpload = () => {
         data: formData,
       });
       if (res.status === 200) {
+        const detectedDisease = res.data.class;
+        const recommendedActions = diseaseActions[detectedDisease] || ["No specific actions available for this disease."];
         setData(res.data);
+        setActions(recommendedActions);
+        // setActions(res.data.actions); // Set actions from the server's response
       }
       setIsloading(false);
     }
-  }, [image, selectedFile, setData, setIsloading]);
+  }, [selectedFile]);
+
 
   const clearData = () => {
     setData(null);
+    setActions([]);
     setImage(false);
     setSelectedFile(null);
     setPreview(null);
@@ -271,16 +306,40 @@ export const ImageUpload = () => {
                   Processing
                 </Typography>
               </CardContent>}
+              {data && !actions && <CardContent>
+                <Typography variant="body2">No recommended actions available.</Typography>
+              </CardContent>}
             </Card>
           </Grid>
           {data &&
             <Grid item className={classes.buttonGrid} >
-
               <ColorButton variant="contained" className={classes.clearButton} color="primary" component="span" size="large" onClick={clearData} startIcon={<Clear fontSize="large" />}>
                 Clear
               </ColorButton>
             </Grid>}
         </Grid >
+        {data && (
+          <Grid item xs={12}>
+            <Card className={classes.detailCard}>
+              <CardContent>
+                {Array.isArray(actions) && actions.length > 0 ? (
+                  <>
+                    <Typography variant="h4" component="h2">Recommended Actions for {data.class}</Typography>
+                    <ul>
+                      {actions.map((action, index) => (
+                        <li key={index}>{action}</li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <Typography variant="body1" component="p">
+                    No specific actions recommended at this time.
+                  </Typography>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+        )}
       </Container >
     </React.Fragment >
   );

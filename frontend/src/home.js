@@ -1,3 +1,4 @@
+// Import necessary React hooks and components from Material-UI
 import { useState, useEffect } from "react";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
@@ -9,14 +10,16 @@ import React from "react";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import { Paper, CardActionArea, CardMedia, Grid, TableContainer, Table, TableBody, TableHead, TableRow, TableCell, Button, CircularProgress } from "@material-ui/core";
-import cblogo from "./logo.png";
-import image from "./gg.png";
 import { DropzoneArea } from 'material-ui-dropzone';
 import { common } from '@material-ui/core/colors';
 import Clear from '@material-ui/icons/Clear';
 import axios from 'axios';
 import { useCallback } from 'react';
+// Import images
+import image from "./gg.png";
+import cblogo from "./logo.png";
 
+// Custom button styling using withStyles
 const ColorButton = withStyles((theme) => ({
   root: {
     color: theme.palette.getContrastText(common.white),
@@ -27,6 +30,7 @@ const ColorButton = withStyles((theme) => ({
   },
 }))(Button);
 
+// makeStyles hook to define styles for the components
 const useStyles = makeStyles((theme) => ({
   grow: {
     flexGrow: 1,
@@ -150,35 +154,48 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+// Disease actions based on the detected disease
 const diseaseActions = {
-  "Late Blight": [
-    "Remove infected leaves and destroy them.",
-    "Avoid overhead watering to keep foliage dry.",
-    "Apply fungicides to protect plants during wet weather."
-  ],
-  "Early Blight": [
-    "Improve air circulation around plants.",
-    "Mulch around the base to prevent spore splash.",
-    "Use fungicide sprays as a preventative measure before symptoms appear."
-  ],
-  "Healthy": [
-    "Continue regular monitoring for any signs of disease.",
-    "Maintain soil health with proper fertilization and pH management.",
-    "Ensure adequate spacing and air circulation to prevent fungal growth."
-  ]
+  "Late Blight": {
+    actions: [
+      "Remove infected leaves and destroy them.",
+      "Avoid overhead watering to keep foliage dry.",
+      "Apply fungicides to protect plants during wet weather."
+    ],
+    url: "https://www.agriplexindia.com/blogs/featured/late-blight-in-potato"
+  },
+
+  "Early Blight": {
+    actions: [
+      "Improve air circulation around plants.",
+      "Mulch around the base to prevent spore splash.",
+      "Use fungicide sprays as a preventative measure before symptoms appear."
+    ],
+    url: "https://www.seipasa.com/en/blog/early-blight-in-potato-identification-and-control/#:~:text=When%20the%20first%20symptoms%20of,Equisetum%20arvense%20extract%20which%2C%20isolated"
+  },
+
+  "Healthy": {
+    actions: [
+      "Continue regular monitoring for any signs of disease.",
+      "Maintain soil health with proper fertilization and pH management.",
+      "Ensure adequate spacing and air circulation to prevent fungal growth."
+    ],
+    url: "https://www.yara.co.uk/crop-nutrition/agronomy-advice/potato-blog/#:~:text=Key%20nutrients%20for%20healthy%20potatoes,over%20200kg%2Fha%20of%20potassium."
+  }
 };
 
+// ImageUpload component to handle image upload and processing
 export const ImageUpload = () => {
   const classes = useStyles();
-  const [selectedFile, setSelectedFile] = useState();
-  const [preview, setPreview] = useState();
-  const [data, setData] = useState();
-  const [image, setImage] = useState(false);
-  const [isLoading, setIsloading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(); // State to store the selected file
+  const [preview, setPreview] = useState(); // State to store the preview of the selected file
+  const [data, setData] = useState(); // State to store the response from the server
+  const [image, setImage] = useState(false); // State to check if an image is selected
+  const [isLoading, setIsloading] = useState(false); // State to check if the image is being processed
+  const [actions, setActions] = useState([]); // State to store recommended actions
   let confidence = 0;
 
-  const [actions, setActions] = useState([]); // State to store recommended actions
-
+  // Function to send the selected file to the server for processing
   const sendFile = useCallback(async () => {
     if (selectedFile) {
       setIsloading(true);
@@ -191,16 +208,21 @@ export const ImageUpload = () => {
       });
       if (res.status === 200) {
         const detectedDisease = res.data.class;
-        const recommendedActions = diseaseActions[detectedDisease] || ["No specific actions available for this disease."];
-        setData(res.data);
-        setActions(recommendedActions);
-        // setActions(res.data.actions); // Set actions from the server's response
+        const diseaseData = diseaseActions[detectedDisease] || {
+          actions: ["No specific actions available for this disease."],
+          url: "#"  // Default to a safe placeholder if no URL is available
+        };
+        setData({
+          ...res.data,
+          actions: diseaseData.actions,
+          url: diseaseData.url
+        });
       }
       setIsloading(false);
     }
   }, [selectedFile]);
 
-
+  // Function to clear the data and reset the states
   const clearData = () => {
     setData(null);
     setActions([]);
@@ -209,6 +231,7 @@ export const ImageUpload = () => {
     setPreview(null);
   };
 
+  // useEffect hook to update the preview when a file is selected
   useEffect(() => {
     if (!selectedFile) {
       setPreview(undefined);
@@ -218,6 +241,7 @@ export const ImageUpload = () => {
     setPreview(objectUrl);
   }, [selectedFile]);
 
+  // useEffect hook to send the file for processing when the preview is updated
   useEffect(() => {
     if (!preview) {
       return;
@@ -226,6 +250,7 @@ export const ImageUpload = () => {
     sendFile();
   }, [preview, sendFile]);
 
+  // Function to handle the file selection
   const onSelectFile = (files) => {
     if (!files || files.length === 0) {
       setSelectedFile(undefined);
@@ -238,6 +263,7 @@ export const ImageUpload = () => {
     setImage(true);
   };
 
+  // Function to handle the file upload
   if (data) {
     confidence = (parseFloat(data.confidence) * 100).toFixed(2);
   }
@@ -322,14 +348,18 @@ export const ImageUpload = () => {
           <Grid item xs={12}>
             <Card className={classes.detailCard}>
               <CardContent>
-                {Array.isArray(actions) && actions.length > 0 ? (
+                {Array.isArray(data.actions) && data.actions.length > 0 ? (
                   <>
                     <Typography variant="h4" component="h2">Recommended Actions for {data.class}</Typography>
                     <ul>
-                      {actions.map((action, index) => (
+                      {data.actions.map((action, index) => (
                         <li key={index}>{action}</li>
                       ))}
                     </ul>
+                    <br/>
+                    <Typography variant="overline">
+                      Learn more about <a href={data.url} target="_blank" rel="noopener noreferrer">{data.class}</a> management.
+                    </Typography>
                   </>
                 ) : (
                   <Typography variant="body1" component="p">

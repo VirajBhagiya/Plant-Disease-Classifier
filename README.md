@@ -6,6 +6,7 @@ Plant Disease Classifier is an AI-based tool 🤖 designed to identify and class
 ## Features 🌟
 - **Disease Identification:** Utilizes advanced machine learning models to accurately identify various plant diseases. 🔍
 - **User-friendly Interface:** Easy to use interface for uploading plant images and receiving diagnosis results. 🖥️
+- **Real-time Analysis:** Offers quick and real-time disease classification to aid in rapid decision-making. ⚡
 
 ## Getting Started 🚀
 ### Prerequisites
